@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, createContext, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import './App.css';
@@ -12,6 +11,7 @@ import RegisterPage from './pages/RegisterPage';
 import CheckoutPage from './pages/CheckoutPage';
 
 import MessageArea from './components/MessageArea';
+import { useTheme } from './ThemeContext'; // useTheme hook'unu import ediyoruz
 
 const fetchProductsData = async () => {
   console.log("Ürünler yükleniyor...");
@@ -123,28 +123,11 @@ function App() {
           return updatedCart;
         });
       }
-
-      setShowCartPanel(true); // 🔥 bu satır yeni eklendi
       showMessage("Ürün sepete eklendi!");
     } else {
       showMessage("Ürün bulunamadı veya geçersiz ID!", 'error');
     }
   }, [products, cart, saveCartToLocalStorage, showMessage]);
-
-
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
-
-  useEffect(() => {
-    document.body.className = theme;
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
-
-  const [showCartPanel, setShowCartPanel] = useState(false);
-
 
   const removeFromCart = useCallback((productId) => {
     setCart(prevCart => {
@@ -181,10 +164,7 @@ function App() {
 
 
   return (
-    <ShopContext.Provider value={{
-      products, cart, addToCart, removeFromCart, changeQuantity, showMessage, setCart, fetchProductsData, navigate,
-      toggleTheme, theme
-    }}>
+    <ShopContext.Provider value={{ products, cart, addToCart, removeFromCart, changeQuantity, showMessage, setCart, fetchProductsData, navigate }}>
       <div className="App">
         <header className="main-header">
           <div className="header-brand">
@@ -193,29 +173,11 @@ function App() {
               <h1>Doping Market</h1>
             </Link>
           </div>
-
           <nav>
             <Link to="/">Ürünler</Link>
             <Link to="/cart">Sepetim (<span id="cart-count-nav">{cartCount}</span>)</Link>
             <Link to="/login">Giriş Yap</Link>
             <Link to="/register">Kayıt Ol</Link>
-
-            {/* 🌗 Tema Geçiş Butonu */}
-            <button
-              onClick={toggleTheme}
-              style={{
-                marginLeft: '10px',
-                padding: '6px 12px',
-                borderRadius: '5px',
-                fontSize: '1em',
-                cursor: 'pointer',
-                background: theme === 'dark' ? '#f5f5f5' : '#2c3e50',
-                color: theme === 'dark' ? '#2c3e50' : '#fff',
-                border: 'none'
-              }}
-            >
-              {theme === 'dark' ? '☀️ Aydınlık' : '🌙 Karanlık'}
-            </button>
           </nav>
         </header>
 
@@ -231,67 +193,12 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="*" element={
-              <section style={{ textAlign: 'center', padding: '50px', fontSize: '1.5em', color: '#e74c3c' }}>
-                <h2>404 - Sayfa Bulunamadı</h2>
-                <p>Aradığınız sayfa mevcut değil.</p>
-                <Link to="/" style={{ color: '#007bff', textDecoration: 'none' }}>Ana Sayfaya Dön</Link>
-              </section>
-            } />
+            <Route path="*" element={<section style={{ textAlign: 'center', padding: '50px', fontSize: '1.5em', color: '#e74c3c' }}><h2>404 - Sayfa Bulunamadı</h2><p>Aradığınız sayfa mevcut değil.</p><Link to="/" style={{ color: '#007bff', textDecoration: 'none' }}>Ana Sayfaya Dön</Link></section>} />
           </Routes>
         </div>
-
-        {/* 🛒 Sepet Paneli */}
-        {showCartPanel && (
-          <div style={{
-            position: 'fixed',
-            right: 0,
-            top: 80,
-            width: '300px',
-            backgroundColor: theme === 'dark' ? '#333' : '#fff',
-            color: theme === 'dark' ? '#fff' : '#000',
-            boxShadow: '-2px 0 8px rgba(0,0,0,0.3)',
-            zIndex: 999,
-            padding: '20px',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-          }}>
-            <h3>Sepet</h3>
-            {cart.length === 0 ? (
-              <p>Sepet boş</p>
-            ) : (
-              <>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {cart.map(item => (
-                    <li key={item.id} style={{ marginBottom: '10px' }}>
-                      {item.name} x{item.quantity}
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => {
-                  setShowCartPanel(false);
-                  navigate('/cart');
-                }} style={{
-                  width: '100%',
-                  padding: '10px',
-                  backgroundColor: '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer',
-                  marginTop: '10px'
-                }}>
-                  Ödeme Yap
-                </button>
-              </>
-            )}
-          </div>
-        )}
       </div>
     </ShopContext.Provider>
   );
-
-
 }
 
 export default App;

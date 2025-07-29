@@ -39,11 +39,11 @@ function CheckoutPage() {
         allOrders.push(newOrder);
         localStorage.setItem('orders', JSON.stringify(allOrders));
 
-        setCart([]);
+        setCart([]); // Sepeti boşalt
         showMessage("Siparişiniz başarıyla alındı! Teşekkür ederiz.", 'success');
 
         setTimeout(() => {
-            navigate('/');
+            navigate('/'); // Ana sayfaya yönlendir
         }, 3000);
     };
 
